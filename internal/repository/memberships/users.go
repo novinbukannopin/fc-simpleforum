@@ -13,7 +13,7 @@ func (r *Repository) GetUser(ctx context.Context, email, username string, userID
 	rows := r.db.QueryRowContext(ctx, query, email, username, userID)
 
 	var response memberships.UserModel
-	err := rows.Scan(&response.ID, &response.Email, &response.Username, &response.Password, &response.CreatedAt, &response.UpdatedAt, &response.CreatedBy, &response.UpdatedBy)
+	err := rows.Scan(&response.ID, &response.Email, &response.Password, &response.Username, &response.CreatedAt, &response.UpdatedAt, &response.CreatedBy, &response.UpdatedBy)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

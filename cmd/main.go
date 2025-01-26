@@ -18,7 +18,7 @@ func main() {
 	)
 
 	err := configs.Init(
-		configs.WithConfigFolder([]string{"./internal/configs"}),
+		configs.WithConfigFolder([]string{"./internal/configs/"}),
 		configs.WithConfigFile("config"),
 		configs.WithConfigType("yaml"),
 	)
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	membershipRepository := membershipRepo.NewRepository(db)
-	membershipSvc := membershipService.NewService(membershipRepository)
+	membershipSvc := membershipService.NewService(cfg, membershipRepository)
 	membershipHandlers := membershipHandler.NewHandler(r, membershipSvc)
 
 	membershipHandlers.RegisterRoute()

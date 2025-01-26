@@ -6,9 +6,10 @@ import (
 	"net/http"
 )
 
-func (h *Handler) SignUp(c *gin.Context) {
+func (h *Handler) Login(c *gin.Context) {
 	ctx := c.Request.Context()
-	var req memberships.SignUpRequest
+
+	var req memberships.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -16,7 +17,7 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	err := h.membershipSvc.SignUp(ctx, req)
+	accessToken, err := h.membershipSvc.Login(ctx, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -24,5 +25,8 @@ func (h *Handler) SignUp(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	response := memberships.LoginResponse{
+		AccessToken: accessToken,
+	}
+	c.JSON(http.StatusOK, response)
 }
