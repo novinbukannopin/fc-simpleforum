@@ -1,0 +1,1 @@
+ALTER TABLE fastcampus.users DROP COLUMN username ;

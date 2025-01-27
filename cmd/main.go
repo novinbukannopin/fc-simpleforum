@@ -3,8 +3,9 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/novinbukannopin/fc-simple-forum/internal/configs"
-	"github.com/novinbukannopin/fc-simple-forum/internal/handlers/memberships"
-	membershipsRepo "github.com/novinbukannopin/fc-simple-forum/internal/repository/memberships"
+	membershipHandler "github.com/novinbukannopin/fc-simple-forum/internal/handlers/memberships"
+	membershipRepo "github.com/novinbukannopin/fc-simple-forum/internal/repository/memberships"
+	membershipService "github.com/novinbukannopin/fc-simple-forum/internal/service/memberships"
 	"github.com/novinbukannopin/fc-simple-forum/pkg/internalsql"
 	"log"
 )
@@ -17,7 +18,7 @@ func main() {
 	)
 
 	err := configs.Init(
-		configs.WithConfigFolder([]string{"./internal/configs"}),
+		configs.WithConfigFolder([]string{"./internal/configs/"}),
 		configs.WithConfigFile("config"),
 		configs.WithConfigType("yaml"),
 	)
@@ -34,10 +35,14 @@ func main() {
 		log.Fatal("failed to connect to database")
 	}
 
-	_ = membershipsRepo.NewRepository(db)
+	membershipRepository := membershipRepo.NewRepository(db)
+	membershipSvc := membershipService.NewService(cfg, membershipRepository)
+	membershipHandlers := membershipHandler.NewHandler(r, membershipSvc)
 
-	membershipHandler := memberships.Handler{Engine: r}
-	membershipHandler.RegisterRoute()
+	membershipHandlers.RegisterRoute()
 
-	r.Run(cfg.Service.Port)
+	err = r.Run(cfg.Service.Port)
+	if err != nil {
+		return
+	}
 }
