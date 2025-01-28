@@ -6,28 +6,24 @@ import (
 	"net/http"
 )
 
-func (h *Handler) Login(c *gin.Context) {
+func (h *Handler) Refresh(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var req memberships.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	var request memberships.RefreshTokenRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	accessToken, refreshToken, err := h.membershipSvc.Login(ctx, req)
+	accessToken, err := h.membershipSvc.ValidateRefreshToken(ctx, c.GetInt64("userId"), request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
+	c.JSON(http.StatusOK, memberships.RefreshResponse{RefreshToken: accessToken})
 
-	response := memberships.LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}
-	c.JSON(http.StatusOK, response)
 }
