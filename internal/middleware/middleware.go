@@ -29,3 +29,24 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func AuthRefreshMiddleware() gin.HandlerFunc {
+	secretKey := configs.Get().Service.SecretJWT
+	return func(c *gin.Context) {
+		header := c.GetHeader("Authorization")
+		header = strings.TrimSpace(header)
+		if header == "" {
+			_ = c.AbortWithError(http.StatusUnauthorized, errors.New("missing Authorization header"))
+			return
+		}
+
+		userId, username, err := jwt.ValidatedTokenWithoutExpiry(header, secretKey)
+		if err != nil {
+			_ = c.AbortWithError(http.StatusUnauthorized, err)
+			return
+		}
+		c.Set("userId", userId)
+		c.Set("username", username)
+		c.Next()
+	}
+}
