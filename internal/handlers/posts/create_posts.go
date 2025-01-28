@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/novinbukannopin/fc-simple-forum/internal/model/posts"
 	"net/http"
@@ -17,6 +18,7 @@ func (h *Handler) CreatePost(c *gin.Context) {
 		return
 	}
 	userId := c.GetInt64("userId")
+	fmt.Println("userId", userId)
 	err := h.postSvc.CreatePost(ctx, userId, request)
 	if err != nil {
 		c.JSON(500, gin.H{
